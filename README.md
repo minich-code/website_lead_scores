@@ -39,7 +39,7 @@ Find data here https://www.kaggle.com/datasets/nagrajdesai/lead-score-case-study
 2. Predicted Labels: Applied cutoff thresholds (0.33, 0.36) to classify leads as likely to convert (1) or unlikely to convert (0).
 3. Lead Scoring for the Test Set: After selecting the optimal cutoff threshold (0.36), the final predicted lead scores were calculated for the test set.
 
-##Model Interpretation & Results
+## Model Interpretation & Results
 
 1. Lead Score Assignment: The final lead score was assigned to each lead based on the predicted probability.
 2. Classification Report: Generated the classification report on the test set using the optimal cutoff to assess the model's performance with metrics like accuracy, precision, recall, and specificity.
