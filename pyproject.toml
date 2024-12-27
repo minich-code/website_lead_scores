@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lead_scoring"
+version = "0.0.1"
+description = "This is a project to predict conversion rates for website visitors"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    { name = "Western", email = "minichworks@gmail.com"}
+]
+
+keywords = ["lead_scoring", "machine-learning"]
+
+dependencies = [
+    "ensure",
+    "flask",
+    "Flask-Cors",
+    "ipykernel",
+    "joblib",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pymongo",
+    "pyYAML",
+    "scikit-learn",
+    "seaborn",
+    "streamlit",
+    "types-PyYAML",
+    "xgboost",
+    "python-box",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "pytest",
+]
+
+[project.scripts]
+lead_scoring = "lead_scoring.main:main"
