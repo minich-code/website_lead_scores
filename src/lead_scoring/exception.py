@@ -38,7 +38,7 @@ def error_message_detail(error: Union[Exception, str], error_details: Tuple[type
         return f"Error: {error} (Details unavailable: {attr_err})"
 
 # Define the custom exception class
-class LeadScoringCustomException(Exception):
+class CustomException(Exception):
     """
     Custom exception class for the Lead Scoring application.
 
@@ -74,11 +74,11 @@ def example_function():
         # Simulating an error
         1 / 0
     except Exception as e:
-        raise LeadScoringCustomException(e, sys.exc_info())
+        raise CustomException(e, sys.exc_info())
 
 if __name__ == "__main__":
     try:
         logger.info("Starting the example function.")
         example_function()
-    except LeadScoringCustomException as e:
+    except CustomException as e:
         logger.error(f"An error occurred: {e}")
