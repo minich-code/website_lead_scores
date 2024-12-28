@@ -18,7 +18,6 @@ import time
 from datetime import datetime
 from pymongo import MongoClient
 from src.lead_scoring.exception import CustomException
-from src.lead_scoring.logger import logging
 from src.lead_scoring.logger import logger
 from src.lead_scoring.constants import *
 from src.lead_scoring.utils.commons import *
