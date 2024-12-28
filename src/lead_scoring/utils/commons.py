@@ -11,9 +11,6 @@ from pythonjsonlogger import jsonlogger
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logging
 
-
-
-@ensure_annotations
 @ensure_annotations
 def read_yaml(path_to_yaml: Path) -> ConfigBox:
     """
