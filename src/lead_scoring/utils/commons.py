@@ -3,6 +3,7 @@ from box.exceptions import BoxValueError
 import yaml
 import json
 import joblib
+import sys
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
@@ -61,28 +62,39 @@ def create_directories(path_to_directories: list, verbose=True):
         except Exception as e:
             logging.error(f"Error creating directory at: {path}, Error: {str(e)}")
             raise CustomException(f"Error creating directory at: {path}, Error: {str(e)}")
+
+def save_object(obj, file_path):
+    try:
+        file_path = Path(file_path) # Added: Convert the path to Path object
+        dir_path = file_path.parent
+        os.makedirs(str(dir_path), exist_ok=True) # Modified: Pass a string in makedirs
+        joblib.dump(obj, str(file_path)) # Modified: Pass a string in joblib
+        logging.info(f"Object saved to {file_path}")
+    except Exception as e:
+        logging.error(f"Error saving object at: {file_path} exception: {str(e)}")
+        raise CustomException(e, sys)
         
 
-def save_object(file_path: Path, obj: Any):
-    """
-    Saves a Python object to a file using joblib.
+# def save_object(file_path: Path, obj: Any):
+#     """
+#     Saves a Python object to a file using joblib.
 
-    Args:
-        file_path (Path): Path where the object will be saved.
-        obj (Any): Python object to save.
+#     Args:
+#         file_path (Path): Path where the object will be saved.
+#         obj (Any): Python object to save.
 
-    Raises:
-        CustomException: If an error occurs during saving.
-    """
+#     Raises:
+#         CustomException: If an error occurs during saving.
+#     """
 
-    try:
-        dir_path = file_path.parent
-        os.makedirs(dir_path, exist_ok=True)
-        joblib.dump(obj, file_path)
-        logging.info(f"Object saved at: {file_path}")
-    except Exception as e:
-        logging.error(f"Error saving object at: {file_path}, Error: {str(e)}")
-        raise CustomException(f"Error saving object at: {file_path}, Error: {str(e)}")
+#     try:
+#         dir_path = file_path.parent
+#         os.makedirs(dir_path, exist_ok=True)
+#         joblib.dump(obj, file_path)
+#         logging.info(f"Object saved at: {file_path}")
+#     except Exception as e:
+#         logging.error(f"Error saving object at: {file_path}, Error: {str(e)}")
+#         raise CustomException(f"Error saving object at: {file_path}, Error: {str(e)}")
 
 
 def load_object(file_path: Path) -> Any:
