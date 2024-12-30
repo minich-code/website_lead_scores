@@ -26,6 +26,7 @@ class ModelTrainerConfig:
     val_features_path: Path
     val_targets_path: Path
     model_name: str
+    threshold_adjustment: float
     model_params: Dict[str, Any]
 
 
