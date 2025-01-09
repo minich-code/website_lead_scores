@@ -89,7 +89,8 @@ class DataValidation:
             return False, error_message
         logger.info(f"Column validation passed") # Added: Log when the validation passes
         return True, None
-    
+
+# Check on this    
     def validate_data_types(self, data):
         """Validate that all columns have the correct data types"""
 

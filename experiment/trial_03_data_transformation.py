@@ -79,6 +79,7 @@ class DataTransformation:
             )
 
             return preprocessor
+        
         except Exception as e:
             logger.error(f"Error creating transformer object: {str(e)}")
             raise CustomException(e, sys)
@@ -159,7 +160,7 @@ if __name__ == "__main__":
         data_transformation = DataTransformation(config = data_transformation_config)
         X_train, X_val, X_test, y_train, y_val, y_test = data_transformation.train_val_test_split()
         preprocessor, X_train_transformed, X_val_transformed, X_test_transformed, y_train, y_val, y_test = \
-            data_transformation.initiate_data_transformation(X_train, X_val, X_test, y_train, y_val, y_test) # Removed the argument
+            data_transformation.initiate_data_transformation(X_train, X_val, X_test, y_train, y_val, y_test) 
 
     except CustomException as e:
         logger.error(f"Error in data transformation: {str(e)}")

@@ -71,14 +71,12 @@ class ModelEvaluation:
     def load_data(val_feature_path: Path, val_targets_path: Path):
         """Loads the validation data from the given file paths."""
         try:
-            X_val_transformed = joblib.load(str(val_feature_path)) 
-            y_val = pd.read_parquet(str(val_targets_path))
-
+            X_val_transformed = joblib.load(val_feature_path)
+            y_val = pd.read_parquet(val_targets_path)
             logger.info("Validation data loaded successfully")
-
             return X_val_transformed, y_val
         except Exception as e:
-            logger.error(f"Error loading data: {str(e)}") 
+            logger.error(f"Error loading data: {e}")
 
     def load_model(self, model_path: Path):
         """Loads the trained model."""

@@ -23,8 +23,6 @@ class ModelTrainerConfig:
     root_dir: Path
     train_features_path: Path
     train_targets_path: Path
-    val_features_path: Path
-    val_targets_path: Path
     model_name: str
     model_params: Dict[str, Any]
 
@@ -65,8 +63,6 @@ class ConfigurationManager:
               root_dir = Path(trainer_config.root_dir),
               train_features_path = Path(trainer_config.train_features_path),
               train_targets_path = Path(trainer_config.train_targets_path),
-              val_features_path = Path(trainer_config.val_features_path),
-              val_targets_path = Path(trainer_config.val_targets_path),
               model_name = trainer_config.model_name,
               model_params = model_params
 
@@ -88,6 +84,7 @@ class ModelTrainer:
 
             logger.info("Training data loaded successfully") 
             return X_train_transformed, y_train
+        
         except Exception as e:
             logger.error(f"Error loading data: {str(e)}") 
     def train_model(self, X_train_transformed, y_train):
