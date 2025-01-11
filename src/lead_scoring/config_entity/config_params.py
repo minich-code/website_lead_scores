@@ -1,10 +1,7 @@
 from dataclasses import dataclass 
 from pathlib import Path
 from typing import Dict, List, Any
-import pymongo
-from pymongo import MongoClient
-import pandas as pd 
-import os 
+
 
 # Data ingestion 
 @dataclass
@@ -26,3 +23,16 @@ class DataValidationConfig:
     data_dir: Path
     all_schema: Dict[str, Any]
     critical_columns: List[str]
+
+@dataclass
+class DataTransformationConfig:
+    """
+    Configuration for data transformation process.
+
+    """
+    root_dir: Path
+    data_path: Path
+    numerical_cols: frozenset
+    categorical_cols: frozenset
+    target_col : str
+    random_state: int  

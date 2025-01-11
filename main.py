@@ -4,7 +4,7 @@ from src.lead_scoring.logger import logger
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.pipelines.pip_01_data_ingestion import DataIngestionPipeline
 from src.lead_scoring.pipelines.pip_02_data_validation import DataValidationPipeline
-# from src.lead_scoring.pipelines.pip_03_data_transformation import DataTransformationPipeline
+from src.lead_scoring.pipelines.pip_03_data_transformation import DataTransformationPipeline
 # from src.lead_scoring.pipelines.pip_04_model_training import ModelTrainingPipeline
 from typing import List
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         orchestrator = PipelineOrchestrator()
         orchestrator.add_pipeline(DataIngestionPipeline())
         orchestrator.add_pipeline(DataValidationPipeline())
-        # orchestrator.add_pipeline(DataTransformationPipeline())
+        orchestrator.add_pipeline(DataTransformationPipeline())
         # orchestrator.add_pipeline(ModelTrainingPipeline())
         orchestrator.run_all()
         logger.info("## ================ Entire Model Pipeline completed successfully =======================")

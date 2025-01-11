@@ -12,6 +12,8 @@ from src.lead_scoring.constants import *
 from src.lead_scoring.utils.commons import read_yaml, create_directories
 from src.lead_scoring.config_entity.config_params import DataIngestionConfig
 from src.lead_scoring.config_entity.config_params import DataValidationConfig
+from src.lead_scoring.config_entity.config_params import DataTransformationConfig
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,7 +24,8 @@ class ConfigurationManager:
             self, 
             data_ingestion_config: str = DATA_INGESTION_CONFIG_FILEPATH,
             data_validation_config: Path = DATA_VALIDATION_CONFIG_FILEPATH,
-            schema_config: Path = SCHEMA_CONFIG_FILEPATH          
+            schema_config: Path = SCHEMA_CONFIG_FILEPATH,
+            data_preprocessing_config: str = DATA_TRANSFORMATION_CONFIG_FILEPATH          
    
                  
                  ) -> None:
@@ -39,10 +42,12 @@ class ConfigurationManager:
             self.ingestion_config = read_yaml(data_ingestion_config)
             self.data_val_config = read_yaml(data_validation_config)
             self.schema = read_yaml(schema_config) 
+            self.preprocessing_config = read_yaml(data_preprocessing_config)
             
             
             create_directories([self.ingestion_config.artifacts_root])
-            create_directories([self.data_val_config.artifacts_root]) 
+            create_directories([self.data_val_config.artifacts_root])
+            create_directories([self.preprocessing_config.artifacts_root]) 
             
             
             logger.info("Configuration directories created successfully.")
@@ -92,3 +97,20 @@ class ConfigurationManager:
         schema_dict = {col['name']: col['type'] for col in schema_columns}
         schema_dict.update({col['name']: col['type'] for col in target_column})
         return schema_dict
+    
+
+# Data Transformation 
+    def get_data_transformation_config(self) -> DataTransformationConfig:
+        logger.info("Getting data transformation configuration")
+
+        transformation_config = self.preprocessing_config.data_transformation
+        create_directories([transformation_config.root_dir])
+
+        return DataTransformationConfig(
+            root_dir = Path(transformation_config.root_dir),
+            data_path = Path(transformation_config.data_path),
+            numerical_cols = transformation_config.numerical_cols,
+            categorical_cols = transformation_config.categorical_cols,
+            target_col = transformation_config.target_col,
+            random_state = transformation_config.random_state
+        )
