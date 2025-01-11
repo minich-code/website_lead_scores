@@ -5,7 +5,6 @@ artifacts_root: artifacts
 
 data_ingestion:
   root_dir: artifacts/data_ingestion 
-  mongo_uri: mongodb+srv://Minich:Mydatabase.456@minich-data-repository.gzlkk1s.mongodb.net/
   database_name: website_leads
   collection_name: website_traffic_data
   batch_size: 2000
