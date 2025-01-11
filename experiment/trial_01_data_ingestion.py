@@ -169,7 +169,7 @@ if __name__ == "__main__":
         data_ingestion_config = config_manager.get_data_ingestion_config()
         data_ingestion = DataIngestion(config=data_ingestion_config, user_name=user_name)
         data_ingestion.import_data_from_mongodb()
-        logging.info("Data ingestion process completed successfully.")
+        logger.info("Data ingestion process completed successfully.")
     except CustomException as e:
         logger.error(f"Error during data ingestion: {e}")
         logger.info("Data ingestion process failed.")
