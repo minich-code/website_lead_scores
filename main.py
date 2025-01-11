@@ -1,29 +1,13 @@
 
-# import sys
-# from src.lead_scoring.logger import logger
-# from src.lead_scoring.exception import CustomException
-# from src.lead_scoring.pipelines.pip_01_data_ingestion import DataIngestionPipeline
-
-
-# COMPONENT_01_NAME = "DATA INGESTION COMPONENT"
-# try:
-#     logger.info(f"# ==========={COMPONENT_01_NAME} Started =================#")
-#     data_ingestion_pipeline = DataIngestionPipeline()
-#     data_ingestion_pipeline.run()
-#     logger.info(f"# ==========={COMPONENT_01_NAME} Completed =================#")
-# except Exception as e:
-#     logger.error(f"Error during {COMPONENT_01_NAME}: {e}")
-#     raise CustomException(e, sys)
-
 import sys
 from src.lead_scoring.logger import logger
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.pipelines.pip_01_data_ingestion import DataIngestionPipeline
-# from src.lead_scoring.pipelines.pip_02_data_validation import DataValidationPipeline
+from src.lead_scoring.pipelines.pip_02_data_validation import DataValidationPipeline
 # from src.lead_scoring.pipelines.pip_03_data_transformation import DataTransformationPipeline
 # from src.lead_scoring.pipelines.pip_04_model_training import ModelTrainingPipeline
 from typing import List
-import logging
+
 
 
 class PipelineOrchestrator:
@@ -50,7 +34,7 @@ if __name__ == "__main__":
         logger.info("## ================ Starting Entire Model Pipeline =======================")
         orchestrator = PipelineOrchestrator()
         orchestrator.add_pipeline(DataIngestionPipeline())
-        # orchestrator.add_pipeline(DataValidationPipeline())
+        orchestrator.add_pipeline(DataValidationPipeline())
         # orchestrator.add_pipeline(DataTransformationPipeline())
         # orchestrator.add_pipeline(ModelTrainingPipeline())
         orchestrator.run_all()

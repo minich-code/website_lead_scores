@@ -769,8 +769,6 @@ from src.lead_scoring.logger import logger
 from src.lead_scoring.constants import *
 from src.lead_scoring.utils.commons import *
 from src.lead_scoring.exception  import CustomException
-#from pandas_profiling import ProfileReport
-
 from ydata_profiling import ProfileReport  # Updated import
 
 @dataclass
@@ -778,12 +776,6 @@ class DataValidationConfig:
     """
     Configuration for data validation process.
 
-    Attributes:
-        root_dir (Path): The root directory for the project.
-        val_status (str): The status of the validation process.
-        data_dir (Path): Directory where data files are located.
-        all_schema (Dict[str, Any]): Schema definitions for data validation.
-        critical_columns (List[str]): List of columns that are critical for validation.
     """
     root_dir: Path
     val_status: str
@@ -812,8 +804,8 @@ class ConfigurationManager:
             data_valid_config = self.data_val_config.data_validation 
             schema_dict = self._process_schema()
 
-            create_directories([os.path.join(data_valid_config.root_dir)]) 
-            logger.debug(f"Data Validation Config Loaded") 
+            create_directories([Path(data_valid_config.root_dir)]) 
+            logger.info(f"Data Validation Config Loaded") 
 
             return DataValidationConfig(
                 root_dir = Path(data_valid_config.root_dir), 
@@ -836,7 +828,7 @@ class ConfigurationManager:
 class DataValidation:
     def __init__(self, config: DataValidationConfig):
         self.config = config
-        self.logger = logging.getLogger(__name__)  # Initialize logger at class level
+        self.logger = logging.getLogger(__name__)  
         self.logger.info(f"Data Validation initialized")  
         self.logger.debug(f"Data validation config: {self.config}") 
 
@@ -906,12 +898,12 @@ class DataValidation:
                 type_mismatches[col] = {"expected": expected_type, "actual": actual_type}
                 validation_status = False
 
-        if type_mismatches:
+        if not validation_status:
             logger.error(f"Data type validation failed: {type_mismatches}")
-            return False, type_mismatches
+            return validation_status, type_mismatches
         else:
             logger.info("Data type validation passed")
-            return True, None
+            return validation_status, None
 
     def _validate_missing_values(self, data: pd.DataFrame) -> Tuple[bool, Optional[Dict[str, int]]]:
         """Validate that columns have any missing values"""
