@@ -136,7 +136,7 @@ class ModelValidation:
         avg_f1 = sum(fold_f1_scores) / len(fold_f1_scores)
         logger.info(f"Average Cross-Validation Macro F1-Score: {avg_f1}")
         
-         # Use the whole X_test and y_test to predict with the model
+        # Use the whole X_test and y_test to predict with the model
         y_pred_all_folds = self.model.predict(X_test)
         class_report_all_folds = classification_report(y_test, y_pred_all_folds, zero_division=0)
         
@@ -238,7 +238,7 @@ class ModelValidation:
         precision_recall_data = {
             'precision': prec.tolist() if isinstance(prec, np.ndarray) else prec,
             'recall': recall.tolist() if isinstance(recall, np.ndarray) else recall,
-            'y_true': y_true,  # No need for tolist() as y_true is already a list
+            'y_true': y_true,  
             'y_prob': y_prob.tolist() if isinstance(y_prob, np.ndarray) else y_prob
         }
 

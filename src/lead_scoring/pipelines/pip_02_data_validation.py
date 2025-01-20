@@ -2,29 +2,20 @@
 import sys
 sys.path.append("/home/western/DS_Projects/website_lead_scores")
 
+import sys
+import os
+import pandas as pd
+from typing import List, Callable
 from src.lead_scoring.components.c_02_data_validation import DataValidation, DataValidationConfig
 from src.lead_scoring.logger import logger
 from src.lead_scoring.config_manager.config_settings import ConfigurationManager
 from src.lead_scoring.exception import CustomException
-from typing import List, Callable
-import pandas as pd
-
-
 
 PIPELINE_NAME = "DATA VALIDATION PIPELINE"
 
 
 class PipelineStep:
-    """
-    Represents a step in the data validation pipeline.
-
-    Attributes:
-        name (str): The name of the pipeline step.
-        step_function (Callable): The function to execute for this step.
-
-    Methods:
-        execute(**kwargs): Executes the pipeline step, logging its progress and handling exceptions.
-    """
+    """Represents a step in the data validation pipeline."""
 
     def __init__(self, name: str, step_function: Callable):
         self.name = name
@@ -44,20 +35,6 @@ class PipelineStep:
 
 class DataValidationPipeline:
     """Orchestrates the data validation pipeline."""
-    """
-    Class to manage and execute a data validation pipeline.
-
-    Attributes:
-        pipeline_name (str): The name of the pipeline.
-        steps (List[PipelineStep]): A list of steps to be executed in the pipeline.
-
-    Methods:
-        add_step(step: PipelineStep):
-            Adds a step to the pipeline.
-
-        run():
-            Executes all steps in the data validation pipeline, logging the process and handling exceptions.
-    """
 
     def __init__(self, pipeline_name: str = PIPELINE_NAME):
         self.pipeline_name = pipeline_name
@@ -67,60 +44,58 @@ class DataValidationPipeline:
         """Adds a step to the pipeline."""
         self.steps.append(step)
 
-    def run(self):
+    def run(self, data_validation_config: DataValidationConfig):
         """Executes the data validation pipeline."""
         try:
-             logger.info(f"## ================ Starting {self.pipeline_name} pipeline =======================")
+            logger.info(f"## ================ Starting {self.pipeline_name} pipeline =======================")
 
-             config_manager = ConfigurationManager()
-             data_validation_config = config_manager.get_data_validation_config()
-          
-             pipeline_data = {
-              'data_validation_config':data_validation_config,
-            }
+            pipeline_data = {'data_validation_config': data_validation_config}
 
-             for step in self.steps:
-                pipeline_data = step.execute(**pipeline_data)
+            for step in self.steps:
+                pipeline_data.update(step.execute(**pipeline_data))
 
-             logger.info(f"## ================ {self.pipeline_name} pipeline completed successfully =======================")
-
+            logger.info(f"## ================ {self.pipeline_name} pipeline completed successfully =======================")
         except CustomException as e:
             logger.error(f"Error during {self.pipeline_name} pipeline execution: {e}")
             raise
 
+
 def create_data_validation_step(name: str) -> PipelineStep:
-    
-    """
-    Creates a pipeline step for data validation.
+    """Creates a pipeline step for data validation."""
 
-    Parameters:
-    - name (str): The name of the pipeline step.
-
-    Returns:
-    - PipelineStep: An instance of PipelineStep configured to perform data validation.
-    """
     def step_function(data_validation_config: DataValidationConfig):
-            logger.info("Initializing Data Validation")
-            data_validation = DataValidation(config=data_validation_config)
-            data = pd.read_parquet(data_validation_config.data_dir)
+        logger.info("Initializing Data Validation")
 
-            logger.info("Starting data validation process") 
-            validation_status = data_validation.validate_data(data)
+        if not os.path.exists(data_validation_config.data_dir):
+            raise FileNotFoundError(f"Data file not found at {data_validation_config.data_dir}")
+        
+        data = pd.read_parquet(data_validation_config.data_dir)
+        logger.info("Starting data validation process")
+        print("Loaded DataFrame Shape:", data.shape)
 
-            if validation_status:
-                logger.info("Data Validation Completed Successfully!")
-            else:
-                logger.warning("Data Validation Failed. Check the status file for more details.")
+        data_validation = DataValidation(config=data_validation_config)
+        validation_status = data_validation.validate_data(data)
 
-            return {} 
+        if validation_status:
+            logger.info("Data Validation Completed Successfully!")
+        else:
+            logger.warning("Data Validation Failed. Check the status file for more details.")
+
+        return {"validation_status": validation_status}
+
     return PipelineStep(name=name, step_function=step_function)
 
 
 if __name__ == "__main__":
     try:
-         data_validation_pipeline = DataValidationPipeline()
-         data_validation_pipeline.add_step(create_data_validation_step("Validate Data"))
-         data_validation_pipeline.run()
+        # Initialize Configuration Manager and Data Validation Config
+        config_manager = ConfigurationManager()
+        data_validation_config = config_manager.get_data_validation_config()
+
+        # Create and Run Data Validation Pipeline
+        data_validation_pipeline = DataValidationPipeline()
+        data_validation_pipeline.add_step(create_data_validation_step("Validate Data"))
+        data_validation_pipeline.run(data_validation_config=data_validation_config)
     except Exception as e:
         logger.error(f"Error during {PIPELINE_NAME} pipeline execution: {e}")
         raise CustomException(e, sys)

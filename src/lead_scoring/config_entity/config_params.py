@@ -36,3 +36,13 @@ class DataTransformationConfig:
     categorical_cols: frozenset
     target_col : str
     random_state: int  
+
+
+@dataclass
+class ModelTrainerConfig:
+    root_dir: Path
+    train_features_path: Path
+    train_targets_path: Path
+    model_name: str
+    model_params: Dict[str, Any]
+

@@ -201,7 +201,6 @@ columns:
         min: 0
         max: 1
 
-
 target_column:
   - name: 'converted'
     type: 'integer'

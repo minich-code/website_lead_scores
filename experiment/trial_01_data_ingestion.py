@@ -104,17 +104,20 @@ class DataIngestion:
             skip_count = 0
 
             while True:
+                logger.debug(f"Fetching batch with skip: {skip_count}, limit: {batch_size}")
                 cursor = self.collection.find({}, {'_id': 0}).skip(skip_count).limit(batch_size)
                 batch = list(cursor)
                 if not batch:
+                   logger.info("No more data found")
                    break
                 
                 df = pd.DataFrame(batch)
-                df.replace([np.inf, -np.inf], np.nan, inplace=True)
-                if df.isnull().values.any():
-                    logger.warning("Data contains NaN values. Dropping rows with NaN values.")
-                    df = df.dropna()
+                #df.replace([np.inf, -np.inf], np.nan, inplace=True)
+                #if df.isnull().values.any():
+                #    logger.warning("Data contains NaN values. Dropping rows with NaN values.")
+                #    df = df.dropna()
                     
+                logger.debug(f"Batch DataFrame shape: {df.shape}")
                 all_data.append(df)
                 skip_count += batch_size
            

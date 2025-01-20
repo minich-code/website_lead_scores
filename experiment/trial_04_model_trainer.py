@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from dataclasses import dataclass 
 from xgboost import XGBClassifier
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logger
@@ -29,8 +29,8 @@ class ModelTrainerConfig:
 
 class ConfigurationManager:
     def __init__(self, 
-                 model_training_config: str = MODEL_TRAINER_CONFIG_FILEPATH, 
-                 model_params_config: str = PARAMS_CONFIG_FILEPATH):
+                 model_training_config: Path = MODEL_TRAINER_CONFIG_FILEPATH, 
+                 model_params_config: Path = PARAMS_CONFIG_FILEPATH):
         try:
           self.training_config = read_yaml(model_training_config)
         except Exception as e:
@@ -44,8 +44,12 @@ class ConfigurationManager:
             raise CustomException(e, sys)
         
         try:
-           artifacts_root = self.training_config.artifacts_root
-           create_directories([artifacts_root])
+           if 'artifacts_root' in self.training_config:
+               artifacts_root = self.training_config.artifacts_root
+               create_directories([artifacts_root])
+           else:
+               logger.error("artifacts_root not defined in the configuration.")
+               raise CustomException("artifacts_root not defined in the configuration.", sys)
         except Exception as e:
            logger.error(f"Error creating directories: {str(e)}")
            raise CustomException(e, sys)
@@ -57,7 +61,7 @@ class ConfigurationManager:
           model_params = self.model_params_config['XGBClassifier_params']
 
           # Creates all necessary directories
-          create_directories([trainer_config.root_dir])
+          create_directories([Path(trainer_config.root_dir)])
           
           return ModelTrainerConfig(
               root_dir = Path(trainer_config.root_dir),
@@ -75,32 +79,37 @@ class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
 
-    @staticmethod # Modified: No need to pass in self
-    def load_data(train_features_path: Path, train_targets_path: Path):
+    @staticmethod
+    def load_data(train_features_path: Path, train_targets_path: Path) -> Tuple[Any, pd.DataFrame]:
         """Loads the training data from the given file paths."""
         try:
-            X_train_transformed = joblib.load(str(train_features_path)) 
-            y_train = pd.read_parquet(str(train_targets_path)) 
+            with open(train_features_path, 'rb') as f:
+                X_train_transformed = joblib.load(f)
+            y_train = pd.read_parquet(train_targets_path.as_posix())
 
-            logger.info("Training data loaded successfully") 
+            logger.info("Training data loaded successfully")
             return X_train_transformed, y_train
-        
+
+        except FileNotFoundError as fnf_error:
+            logger.error(f"File not found: {str(fnf_error)}")
         except Exception as e:
-            logger.error(f"Error loading data: {str(e)}") 
+            logger.error(f"Unexpected error loading data: {str(e)}")
     def train_model(self, X_train_transformed, y_train):
         try:
+            if not self.config.model_params:
+                raise ValueError("Model parameters are empty.")
             xgb_model = XGBClassifier(**self.config.model_params)
             xgb_model.fit(X_train_transformed, y_train)
 
             # Save the model
-            model_path = os.path.join(self.config.root_dir, self.config.model_name)
+            model_path = Path(self.config.root_dir) / self.config.model_name
             joblib.dump(xgb_model, model_path) 
             logger.info(f"Model trained and saved at: {model_path}") 
 
             return xgb_model 
         except Exception as e:
             logger.error(f"Error training model: {str(e)}") 
-            raise CustomException(e, sys)  
+            raise CustomException(e, sys)
 
 
 

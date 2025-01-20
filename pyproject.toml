@@ -42,7 +42,8 @@ dependencies = [
     "python-box",
     "ydata-profiling",
     "pydantic>=2.0",
-    "pydantic-settings"
+    "pydantic-settings",
+    "dvc"
 ]
 
 [project.optional-dependencies]
