@@ -175,4 +175,4 @@ artifacts/
 
 notebooks/data_loader.ipynb
 leadsenv/
-logs/
+logs/notebooks/data_loader.ipynb
