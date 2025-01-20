@@ -45,4 +45,10 @@ class ModelTrainerConfig:
     train_targets_path: Path
     model_name: str
     model_params: Dict[str, Any]
+    project_name: str
+    val_features_path: Path
+    val_targets_path: Path
+
+
+
 

@@ -174,5 +174,9 @@ artifacts/
 
 
 notebooks/data_loader.ipynb
+notebooks/data_loader.ipynb
 leadsenv/
-logs/notebooks/data_loader.ipynb
+logs/
+
+# Weights and biases
+wandb/

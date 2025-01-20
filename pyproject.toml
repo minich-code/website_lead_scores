@@ -43,7 +43,8 @@ dependencies = [
     "ydata-profiling",
     "pydantic>=2.0",
     "pydantic-settings",
-    "dvc"
+    "dvc",
+    "wandb"
 ]
 
 [project.optional-dependencies]

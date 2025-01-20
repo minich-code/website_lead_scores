@@ -25,6 +25,7 @@ from src.lead_scoring.config_entity.config_params import DataTransformationConfi
 
 
 
+
 class DataTransformation:
     def __init__(self, config:DataTransformationConfig):
         self.config = config
