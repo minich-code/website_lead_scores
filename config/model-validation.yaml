@@ -11,4 +11,5 @@ model_validation:
   roc_curve_path: artifacts/model_validation/roc_curve.png
   pr_curve_path: artifacts/model_validation/pr_curve.png
   precision_recall_path: artifacts/model_validation/precision_recall.png
-  optimal_threshold: 0.21
+  optimal_threshold: 0.3
+  project_name: leads-scoring

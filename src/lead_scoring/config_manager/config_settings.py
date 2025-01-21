@@ -15,6 +15,7 @@ from src.lead_scoring.config_entity.config_params import DataValidationConfig
 from src.lead_scoring.config_entity.config_params import DataTransformationConfig
 from src.lead_scoring.config_entity.config_params import ModelTrainerConfig
 from src.lead_scoring.config_entity.config_params import ModelEvaluationConfig
+from src.lead_scoring.config_entity.config_params import ModelValidationConfig
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,9 +30,9 @@ class ConfigurationManager:
             model_training_config: Path = MODEL_TRAINER_CONFIG_FILEPATH, 
             model_params_config: Path = PARAMS_CONFIG_FILEPATH,
             hyperparameter_config: Path = HYPERPARAMETER_SEARCH_CONFIG_FILEPATH,
-            model_evaluation_config: str = MODEL_EVALUATION_CONFIG_FILEPATH         
-   
-                 
+            model_evaluation_config: str = MODEL_EVALUATION_CONFIG_FILEPATH,
+            model_validation_config: str = MODEL_VALIDATION_CONFIG_FILEPATH         
+      
                  ) -> None:
         """
         Initializes the ConfigurationManager.
@@ -51,16 +52,19 @@ class ConfigurationManager:
             self.model_params_config = read_yaml(model_params_config)
             self.wandb_config = read_yaml(hyperparameter_config)
             self.evaluation_config = read_yaml(model_evaluation_config)
+            self.validation_config = read_yaml(model_validation_config)
             
-            
+
             create_directories([self.ingestion_config.artifacts_root])
             create_directories([self.data_val_config.artifacts_root])
             create_directories([self.preprocessing_config.artifacts_root])
             create_directories([self.training_config.artifacts_root])
-            create_directories([self.evaluation_config.artifacts_root]) 
-           
+            create_directories([self.evaluation_config.artifacts_root])
+            create_directories([self.validation_config.artifacts_root]) 
+
             
             logger.info("Configuration directories created successfully.")
+        
         except Exception as e:
             logger.error(f"Error initializing ConfigurationManager: {e}")
             logger.error(f"Error creating directories")
@@ -187,4 +191,26 @@ class ConfigurationManager:
             eval_scores_path = Path(eval_config.eval_scores_path),
             threshold_adjustment = Path(eval_config.threshold_adjustment),
             precision_recall_path = Path(eval_config.precision_recall_path),
+        )
+    
+
+    def get_model_validation_config(self) -> ModelValidationConfig:
+        logger.info("Getting model validation configuration")
+
+        val_config = self.validation_config.model_validation
+        create_directories([val_config.root_dir])
+
+        return ModelValidationConfig(
+            root_dir=Path(val_config.root_dir),
+            test_feature_path=Path(val_config.test_feature_path),
+            test_targets_path=Path(val_config.test_targets_path),
+            model_path=Path(val_config.model_path),
+            validation_scores_path=Path(val_config.validation_scores_path),
+            classification_report_path=Path(val_config.classification_report_path),
+            confusion_matrix_path=Path(val_config.confusion_matrix_path),
+            roc_curve_path=Path(val_config.roc_curve_path),
+            pr_curve_path=Path(val_config.pr_curve_path),
+            precision_recall_path=Path(val_config.precision_recall_path),
+            optimal_threshold=val_config.optimal_threshold,
+            project_name = val_config.project_name
         )

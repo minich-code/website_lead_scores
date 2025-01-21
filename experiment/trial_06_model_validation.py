@@ -1,3 +1,4 @@
+
 import sys
 sys.path.append("/home/western/DS_Projects/website_lead_scores")
 
@@ -14,12 +15,15 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+import wandb
 
 
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logger
 from src.lead_scoring.constants import *
 from src.lead_scoring.utils.commons import *
+wandb.require("core")
+
 
 
 @dataclass
@@ -35,6 +39,7 @@ class ModelValidationConfig:
     pr_curve_path: Path
     precision_recall_path: Path
     optimal_threshold: float
+    project_name: str
 
 
 class ConfigurationManager:
@@ -61,6 +66,7 @@ class ConfigurationManager:
             pr_curve_path=Path(val_config.pr_curve_path),
             precision_recall_path=Path(val_config.precision_recall_path),
             optimal_threshold=val_config.optimal_threshold,
+            project_name = val_config.project_name
         )
 
 
@@ -70,6 +76,7 @@ class ModelValidation:
         self.model = None  # Initialize model attribute
         self.X_test = None
         self.y_test = None
+        self.run = None
 
     def load_data(self) -> tuple[pd.DataFrame, pd.Series]:
         """
@@ -131,7 +138,6 @@ class ModelValidation:
             fold_f1_scores.append(fold_f1)
             logger.info(f"Fold {fold+1} Validation Macro F1-Score: {fold_f1}")
 
-            
         # Print average Macro F1-Score across all folds
         avg_f1 = sum(fold_f1_scores) / len(fold_f1_scores)
         logger.info(f"Average Cross-Validation Macro F1-Score: {avg_f1}")
@@ -142,6 +148,9 @@ class ModelValidation:
         
         with open(self.config.classification_report_path, "w") as f:
            f.write(class_report_all_folds)
+
+        if self.run:
+            self.run.log({"avg_cv_f1": avg_f1})
 
     def make_probability_predictions(self, X_test, y_test):
         """Generates probability predictions on the test set and assigns lead scores."""
@@ -172,6 +181,10 @@ class ModelValidation:
             with open(self.config.validation_scores_path, 'w') as f:
                 json.dump(metrics, f)
             logger.info("Probability predictions, lead scores, and evaluation metrics saved successfully.")
+            
+            if self.run:
+                self.run.log(metrics)
+
             return y_test, y_prob
 
 
@@ -195,15 +208,17 @@ class ModelValidation:
         fpr, tpr, _ = roc_curve(y_true, y_prob)
         roc_auc = auc(fpr, tpr)
         prec, recall, _ = precision_recall_curve(y_true, y_prob)
+        pr_auc = auc(recall, prec)
 
         # Save metrics
-        self.save_metrics(conf_matrix, class_report, fpr, tpr, roc_auc, prec, recall, y_true, y_prob)
+        self.save_metrics(conf_matrix, class_report, fpr, tpr, roc_auc, prec, recall, pr_auc, y_true, y_prob)
 
         logger.info("Evaluation metrics saved successfully")
 
-    def save_metrics(self, conf_matrix, class_report, fpr, tpr, roc_auc, prec, recall, y_true, y_prob):
+
+    def save_metrics(self, conf_matrix, class_report, fpr, tpr, roc_auc, prec, recall, pr_auc, y_true, y_prob):
         """
-        Saves evaluation metrics to specified paths.
+        Saves evaluation metrics to specified paths and logs to W&B.
         """
         # Save confusion matrix
         plt.figure(figsize=(8, 6))
@@ -227,10 +242,11 @@ class ModelValidation:
 
         # Save precision-recall curve
         plt.figure(figsize=(8, 6))
-        plt.plot(recall, prec, color="darkblue", lw=2)
+        plt.plot(recall, prec, color="darkblue", lw=2, label=f"PR AUC = {pr_auc:.2f}")
         plt.xlabel("Recall")
         plt.ylabel("Precision")
         plt.title("Precision-Recall Curve")
+        plt.legend(loc="lower left")
         plt.savefig(self.config.pr_curve_path)
         plt.close()
 
@@ -245,6 +261,15 @@ class ModelValidation:
         with open(self.config.precision_recall_path, 'w') as f:
             json.dump(precision_recall_data, f)
 
+        # Log to W&B if W&B is initialized
+        if self.run:
+            self.run.log({
+              "confusion_matrix": wandb.Image(str(self.config.confusion_matrix_path)),
+              "roc_curve": wandb.Image(str(self.config.roc_curve_path)),
+              "pr_curve": wandb.Image(str(self.config.pr_curve_path)),
+                "roc_auc": roc_auc,
+                 "pr_auc": pr_auc
+            })
 
 
     def run_validation(self):
@@ -252,6 +277,9 @@ class ModelValidation:
         Runs the complete model validation process.
         """
         try:
+            # Initialize W&B run
+            self.run = wandb.init(project=self.config.project_name, config=self.config.__dict__)
+
             X_test, y_test = self.load_data()
             model = self.load_model()
             self.model = model
@@ -266,6 +294,9 @@ class ModelValidation:
             logger.error(f"Error during model validation: {e}")
             raise CustomException(f"Error during model validation: {e}", error_details=str(e))
 
+        finally:
+            if self.run:
+                self.run.finish()
 
 
 if __name__ == "__main__":

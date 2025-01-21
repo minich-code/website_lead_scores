@@ -60,3 +60,20 @@ class ModelEvaluationConfig:
     threshold_adjustment: Path
     precision_recall_path: Path
 
+
+@dataclass
+class ModelValidationConfig:
+    root_dir: Path
+    test_feature_path: Path
+    test_targets_path: Path
+    model_path: Path
+    validation_scores_path: Path
+    classification_report_path: Path
+    confusion_matrix_path: Path
+    roc_curve_path: Path
+    pr_curve_path: Path
+    precision_recall_path: Path
+    optimal_threshold: float
+    project_name: str
+
+
