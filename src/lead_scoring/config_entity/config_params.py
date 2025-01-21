@@ -50,5 +50,13 @@ class ModelTrainerConfig:
     val_targets_path: Path
 
 
-
+@dataclass
+class ModelEvaluationConfig:
+    root_dir: Path
+    val_feature_path: Path
+    val_targets_path: Path
+    model_path: Path
+    eval_scores_path: Path
+    threshold_adjustment: Path
+    precision_recall_path: Path
 

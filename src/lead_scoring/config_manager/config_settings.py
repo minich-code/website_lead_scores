@@ -14,6 +14,7 @@ from src.lead_scoring.config_entity.config_params import DataIngestionConfig
 from src.lead_scoring.config_entity.config_params import DataValidationConfig
 from src.lead_scoring.config_entity.config_params import DataTransformationConfig
 from src.lead_scoring.config_entity.config_params import ModelTrainerConfig
+from src.lead_scoring.config_entity.config_params import ModelEvaluationConfig
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,7 +28,8 @@ class ConfigurationManager:
             data_preprocessing_config: str = DATA_TRANSFORMATION_CONFIG_FILEPATH,
             model_training_config: Path = MODEL_TRAINER_CONFIG_FILEPATH, 
             model_params_config: Path = PARAMS_CONFIG_FILEPATH,
-            hyperparameter_config: Path = HYPERPARAMETER_SEARCH_CONFIG_FILEPATH         
+            hyperparameter_config: Path = HYPERPARAMETER_SEARCH_CONFIG_FILEPATH,
+            model_evaluation_config: str = MODEL_EVALUATION_CONFIG_FILEPATH         
    
                  
                  ) -> None:
@@ -48,12 +50,14 @@ class ConfigurationManager:
             self.training_config = read_yaml(model_training_config)
             self.model_params_config = read_yaml(model_params_config)
             self.wandb_config = read_yaml(hyperparameter_config)
+            self.evaluation_config = read_yaml(model_evaluation_config)
             
             
             create_directories([self.ingestion_config.artifacts_root])
             create_directories([self.data_val_config.artifacts_root])
             create_directories([self.preprocessing_config.artifacts_root])
-            create_directories([self.training_config.artifacts_root]) 
+            create_directories([self.training_config.artifacts_root])
+            create_directories([self.evaluation_config.artifacts_root]) 
            
             
             logger.info("Configuration directories created successfully.")
@@ -167,3 +171,20 @@ class ConfigurationManager:
         except Exception as e:
             logger.error(f"Error getting model training config: {str(e)}")
             raise CustomException(e, sys)
+        
+
+    def get_model_evaluation_config(self) -> ModelEvaluationConfig:
+        logger.info("Getting model evaluation configuration")
+
+        eval_config = self.evaluation_config.model_evaluation
+        create_directories([eval_config.root_dir])
+
+        return ModelEvaluationConfig(
+            root_dir = Path(eval_config.root_dir),
+            val_feature_path = Path(eval_config.val_feature_path),
+            val_targets_path = Path(eval_config.val_targets_path),
+            model_path = Path(eval_config.model_path),
+            eval_scores_path = Path(eval_config.eval_scores_path),
+            threshold_adjustment = Path(eval_config.threshold_adjustment),
+            precision_recall_path = Path(eval_config.precision_recall_path),
+        )

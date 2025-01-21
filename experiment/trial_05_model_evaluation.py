@@ -273,6 +273,7 @@
 #         logger.error(f"Error in model evaluation: {str(e)}")
 #         sys.exit(1)
 
+
 import sys
 sys.path.append("/home/western/DS_Projects/website_lead_scores")
 
@@ -294,10 +295,7 @@ from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logger
 from src.lead_scoring.constants import *
 from src.lead_scoring.utils.commons import *
-# Weights and Bias
-import wandb
-# Add requirements for wandb core 
-wandb.require("core")
+
 
 @dataclass
 class ModelEvaluationConfig:
@@ -308,7 +306,7 @@ class ModelEvaluationConfig:
     eval_scores_path: Path
     threshold_adjustment: Path
     precision_recall_path: Path
-    use_wandb: bool  # Added to config, now optional
+
 
 class ConfigurationManager:
     def __init__(self, model_evaluation_config: str = MODEL_EVALUATION_CONFIG_FILEPATH):
@@ -330,7 +328,6 @@ class ConfigurationManager:
             eval_scores_path = Path(eval_config.eval_scores_path),
             threshold_adjustment = Path(eval_config.threshold_adjustment),
             precision_recall_path = Path(eval_config.precision_recall_path),
-            use_wandb=eval_config.use_wandb
         )
     
 class ModelEvaluation:
@@ -457,15 +454,6 @@ class ModelEvaluation:
             model = self.load_model(self.config.model_path)
             
             y_pred, y_pred_proba, scores = self.evaluate_model(model, X_val_transformed, y_val)
-
-            if self.config.use_wandb:
-                import wandb
-                wandb.init(project="lead-scoring-project", config=model.get_params())
-
-                wandb.log(scores)
-                wandb.log({"threshold_plot": wandb.Image(str(self.config.threshold_adjustment))})
-                wandb.log({"precision_recall_plot": wandb.Image(str(self.config.precision_recall_path))})
-                wandb.finish()
 
             logger.info("Evaluation process completed successfully")
         except Exception as e:
