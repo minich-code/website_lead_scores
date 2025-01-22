@@ -4,7 +4,7 @@ sys.path.append("/home/western/DS_Projects/website_lead_scores")
 from src.lead_scoring.logger import logger
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.config_manager.config_settings import ConfigurationManager
-from src.lead_scoring.components.c_05_model_evaluation import ModelEvaluation
+from src.lead_scoring.components.c_06_model_validation import ModelValidation
 from typing import Callable, List
 
 PIPELINE_NAME = "MODEL VALIDATION PIPELINE"
@@ -38,7 +38,7 @@ class PipelineStep:
             raise CustomException(e, sys)
 
 
-class ModelEvaluationPipeline:
+class ModelValidationPipeline:
     """
     Orchestrates the model evaluation pipeline.
 
@@ -96,7 +96,7 @@ def create_model_evaluation_step(name: str) -> PipelineStep:
     """
     def step_function(model_evaluation_config):
         logger.info("Initializing model evaluation")
-        model_evaluation = ModelEvaluation(config=model_evaluation_config)
+        model_evaluation = ModelValidation(config=model_evaluation_config)
         model_evaluation.run_evaluation()
         logger.info("Model validation completed successfully")
         return {}
@@ -107,7 +107,7 @@ def create_model_evaluation_step(name: str) -> PipelineStep:
 if __name__ == "__main__":
     try:
         # Instantiate pipeline
-        model_evaluation_pipeline = ModelEvaluationPipeline()
+        model_evaluation_pipeline = ModelValidationPipeline()
 
         # Add steps to pipeline
         model_evaluation_pipeline.add_step(create_model_evaluation_step("Evaluate Model"))
