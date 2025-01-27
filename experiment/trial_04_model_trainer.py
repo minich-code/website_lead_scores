@@ -232,7 +232,6 @@ from typing import Dict, Any, Tuple
 from xgboost import XGBClassifier
 from sklearn.metrics import f1_score
 
-
 # Local Modules
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logger
@@ -438,3 +437,4 @@ if __name__ == "__main__":
         logger.error(f"Error in model training: {str(e)}")
         wandb.finish()  # Ensure the run is ended in case of an exception
         sys.exit(1)
+
