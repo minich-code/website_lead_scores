@@ -110,5 +110,5 @@ class ModelTrainer:
             function=lambda: self._train_and_evaluate(
                 X_train_transformed, y_train, X_val_transformed, y_val
             ),
-            count=5,
+            count=1,
         )
