@@ -43,7 +43,7 @@ class ConfigurationManager:
         
         logger.info(f"Initializing the configuration manager") 
 
-        try: #Added: Error handling for read_yaml
+        try:
             self.data_val_config = read_yaml(data_validation_config)
             self.schema = read_yaml(schema_config) 
             create_directories([self.data_val_config.artifacts_root]) 

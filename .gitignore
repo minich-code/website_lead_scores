@@ -180,3 +180,7 @@ logs/
 
 # Weights and biases
 wandb/
+.qodo
+
+.idea/
+/.idea
