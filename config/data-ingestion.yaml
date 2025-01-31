@@ -8,5 +8,6 @@ data_ingestion:
   database_name: leads
   collection_name: web_leads
   batch_size: 2000
+  get_user_name: John Doe
 
 

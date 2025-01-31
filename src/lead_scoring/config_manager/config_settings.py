@@ -72,9 +72,8 @@ class ConfigurationManager:
         
 # Data Ingestion Configuration
     def get_data_ingestion_config(self) -> DataIngestionConfig:
-        """Returns the data ingestion configuration object."""
         try:
-            data_config = self.ingestion_config.data_ingestion
+            data_config = self.ingestion_config['data_ingestion']
             create_directories([data_config['root_dir']])
             logger.info(f"Data ingestion configuration loaded from: {DATA_INGESTION_CONFIG_FILEPATH}")
             data_config['mongo_uri'] = os.environ.get('MONGO_URI')
@@ -82,7 +81,13 @@ class ConfigurationManager:
         except Exception as e:
             logger.error(f"Error loading data ingestion configuration: {e}")
             raise CustomException(e, sys)
-        
+    
+    def get_user_name(self):
+        try:
+            return self.ingestion_config['data_ingestion'].get('get_user_name', 'DefaultUser')
+        except Exception as e:
+            logger.error(f"Error getting user name from config: {e}")
+            raise CustomException(e, sys)
 
 
 # Data Validation configuration
