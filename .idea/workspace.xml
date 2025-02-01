@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aac8f085-ee5c-47d3-8c50-e137ddddc183" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/website_lead_scores.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/website_lead_scores.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiment/trial_01_data_ingestion.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiment/trial_01_data_ingestion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiment/trial_02_data_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiment/trial_02_data_validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiment/trial_04_model_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiment/trial_04_model_trainer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lead_scoring/pipelines/pip_04_model_trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/lead_scoring/pipelines/pip_04_model_trainer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +48,7 @@
     &quot;com.codeium.enabled&quot;: &quot;true&quot;,
     &quot;full.screen.before.presentation.mode&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/western/DS_Projects/website_lead_scores&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/western/Moringa_labs/oop&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
