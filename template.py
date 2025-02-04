@@ -55,7 +55,6 @@ list_of_files = [
     "dvc/dvc.yaml",
     "main.py",
     "app.py",
-    "setup.py",
     "streamlit_app.py",
     "Dockerfile",
     "requirements.txt",
@@ -70,7 +69,8 @@ list_of_files = [
     "templates/index.html",
     "templates/prediction.html",
     "templates/train.html",
-    "static/styles.css"
+    "static/styles.css",
+    "pyproject.toml",
 
 ]
 

@@ -13,3 +13,5 @@ model_validation:
   precision_recall_path: artifacts/model_validation/precision_recall.png
   optimal_threshold: 0.3
   project_name: leads-scoring
+
+

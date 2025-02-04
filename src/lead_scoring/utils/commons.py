@@ -75,27 +75,6 @@ def save_object(obj, file_path):
         raise CustomException(e, sys)
         
 
-# def save_object(file_path: Path, obj: Any):
-#     """
-#     Saves a Python object to a file using joblib.
-
-#     Args:
-#         file_path (Path): Path where the object will be saved.
-#         obj (Any): Python object to save.
-
-#     Raises:
-#         CustomException: If an error occurs during saving.
-#     """
-
-#     try:
-#         dir_path = file_path.parent
-#         os.makedirs(dir_path, exist_ok=True)
-#         joblib.dump(obj, file_path)
-#         logging.info(f"Object saved at: {file_path}")
-#     except Exception as e:
-#         logging.error(f"Error saving object at: {file_path}, Error: {str(e)}")
-#         raise CustomException(f"Error saving object at: {file_path}, Error: {str(e)}")
-
 
 def load_object(file_path: Path) -> Any:
     """
@@ -138,26 +117,6 @@ def save_json(path: Path, data: dict):
     except Exception as e:
         logging.error(f"Error saving JSON file at: {path}, Error: {str(e)}")
         raise CustomException(f"Error saving JSON file at: {path}, Error: {str(e)}")
-
-# def save_json(path: Path, data: dict):
-#     """
-#     Saves a dictionary to a JSON file.
-
-#     Args:
-#         path (Path): Path where the JSON file will be saved.
-#         data (dict): Dictionary to save as JSON.
-#     """
-#     try:
-#         # Check if the path is of type Path or str
-#         if not isinstance(path, (str, Path, os.PathLike)):
-#             raise TypeError(f"Invalid path type: {type(path)}. Expected str, bytes, or os.PathLike object.")
-        
-#         with open(path, "w") as f:
-#             json.dump(data, f, indent=4)
-#         logging.info(f"JSON file saved at: {path}")
-#     except Exception as e:
-#         logging.error(f"Error saving JSON file at: {path}, Error: {str(e)}")
-#         raise CustomException(f"Error saving JSON file at: {path}, Error: {str(e)}")
 
 
 def load_json(path: Path) -> ConfigBox:
