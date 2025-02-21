@@ -170,6 +170,7 @@ artifacts/
 # Allow tracking of .dvc files in the artifacts folder
 
 !artifacts/**/*.dvc
+!artifacts/data_validation/validated_website_leads_data.parquet
 
 
 
@@ -177,6 +178,7 @@ notebooks/data_loader.ipynb
 notebooks/data_loader.ipynb
 leadsenv/
 logs/
+
 
 # Weights and biases
 wandb/

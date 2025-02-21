@@ -2,8 +2,21 @@ stages:
   data_ingestion:
     cmd: python src/lead_scoring/pipelines/pip_01_data_ingestion.py
     deps: 
-      - src/lead_scoring/pipelines/pip_01_data_ingestion.py  # Corrected!  Use the data ingestion script itself
+      - src/lead_scoring/pipelines/pip_01_data_ingestion.py 
       - config/data-ingestion.yaml
     outs:
       - artifacts/data_ingestion/data-ingestion-metadata.json
       - artifacts/data_ingestion/website_visitors.parquet
+
+
+  data_validation:
+    cmd: python src/lead_scoring/pipelines/pip_02_data_validation.py
+    deps:
+      - src/lead_scoring/pipelines/pip_02_data_validation.py
+      - config/data-schema.yaml
+      - config/data-validation.yaml
+
+    outs:
+      - artifacts/data_validation/validated_data_profile.html
+      - artifacts/data_validation/validated_website_leads_data.parquet
+      - artifacts/data_validation/validation_status.json

@@ -20,3 +20,31 @@ stages:
       hash: md5
       md5: d2c8be369168acf5305017dd8505e520
       size: 85322
+  data_validation:
+    cmd: python src/lead_scoring/pipelines/pip_02_data_validation.py
+    deps:
+    - path: config/data-schema.yaml
+      hash: md5
+      md5: 8c9825110172cb8e8dd1f013c67a3b44
+      size: 3497
+    - path: config/data-validation.yaml
+      hash: md5
+      md5: 999c10458447380eb167d44d311ff97b
+      size: 379
+    - path: src/lead_scoring/pipelines/pip_02_data_validation.py
+      hash: md5
+      md5: bd603b670003e90d3138e061e63929c2
+      size: 5469
+    outs:
+    - path: artifacts/data_validation/validated_data_profile.html
+      hash: md5
+      md5: 62eb30a29e3cf87dbad188c370a3282f
+      size: 1923987
+    - path: artifacts/data_validation/validated_website_leads_data.parquet
+      hash: md5
+      md5: d2c8be369168acf5305017dd8505e520
+      size: 85322
+    - path: artifacts/data_validation/validation_status.json
+      hash: md5
+      md5: bd500a24f539935c778a68559c6d432e
+      size: 546

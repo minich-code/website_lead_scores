@@ -24,8 +24,8 @@ class ConfigurationManager:
     def __init__(
             self, 
             data_ingestion_config: str = DATA_INGESTION_CONFIG_FILEPATH,
-            data_validation_config: Path = DATA_VALIDATION_CONFIG_FILEPATH,
-            schema_config: Path = SCHEMA_CONFIG_FILEPATH,
+            data_validation_config: str = DATA_VALIDATION_CONFIG_FILEPATH,
+            schema_config: str = SCHEMA_CONFIG_FILEPATH,
             data_preprocessing_config: str = DATA_TRANSFORMATION_CONFIG_FILEPATH,
             model_training_config: Path = MODEL_TRAINER_CONFIG_FILEPATH, 
             model_params_config: Path = PARAMS_CONFIG_FILEPATH,
@@ -39,7 +39,7 @@ class ConfigurationManager:
             
             self.ingestion_config = read_yaml(data_ingestion_config)
             self.data_val_config = read_yaml(data_validation_config)
-            self.schema = read_yaml(schema_config) 
+            self.schema = read_yaml(schema_config)
             self.preprocessing_config = read_yaml(data_preprocessing_config)
             self.training_config = read_yaml(model_training_config)
             self.model_params_config = read_yaml(model_params_config)
@@ -48,8 +48,8 @@ class ConfigurationManager:
             self.validation_config = read_yaml(model_validation_config)
             
 
-            create_directories([self.ingestion_config.artifacts_root])
-            create_directories([self.data_val_config.artifacts_root])
+            create_directories([self.ingestion_config['artifacts_root']])
+            create_directories([self.data_val_config['artifacts_root']])
             create_directories([self.preprocessing_config.artifacts_root])
             create_directories([self.training_config.artifacts_root])
             create_directories([self.evaluation_config.artifacts_root])
@@ -85,21 +85,20 @@ class ConfigurationManager:
 # Data Validation configuration
     def get_data_validation_config(self) -> DataValidationConfig:
         try:
-            data_valid_config = self.data_val_config.data_validation 
-            schema_dict = self._process_schema()
-
-            create_directories([Path(data_valid_config.root_dir)]) 
-            logger.info(f"Data Validation Config Loaded") 
+            data_validation = self.data_val_config['data_validation']
+            create_directories([data_validation['root_dir']])
 
             return DataValidationConfig(
-                root_dir = Path(data_valid_config.root_dir), 
-                val_status = data_valid_config.val_status, 
-                data_dir = Path(data_valid_config.data_dir), 
-                all_schema = schema_dict,
-                critical_columns = data_valid_config.critical_columns
+                root_dir=Path(data_validation['root_dir']),
+                data_dir=Path(data_validation['data_dir']),
+                val_status=Path(data_validation['val_status']),
+                all_schema=self.schema,  # Use self.schema here
+                validated_data=Path(data_validation['validated_data']),
+                profile_report_name=data_validation['profile_report_name']
             )
-        except Exception as e: 
-            logger.exception(f"Error getting data validation configuration: {str(e)}") 
+
+        except Exception as e:
+            logger.exception(f"Error getting data validation configuration: {str(e)}")
             raise CustomException(e, sys)
 
     def _process_schema(self) -> Dict[str, str]:

@@ -15,15 +15,12 @@ class DataIngestionConfig:
 # Data Validation
 @dataclass
 class DataValidationConfig:
-    """
-    Configuration for data validation process.
-
-    """
     root_dir: Path
-    val_status: str
     data_dir: Path
-    all_schema: Dict[str, Any]
-    critical_columns: List[str]
+    val_status: Path
+    all_schema: dict
+    validated_data: Path
+    profile_report_name: str
 
 @dataclass
 class DataTransformationConfig:
