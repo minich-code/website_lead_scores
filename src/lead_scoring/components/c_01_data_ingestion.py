@@ -1,50 +1,37 @@
-import sys
-sys.path.append('/home/western/DS_Projects/website_lead_scores')
+
 
 
 from pathlib import Path
-import pymongo
+from pymongo import MongoClient  
 import pandas as pd
 import numpy as np
+import os
 import json
 import time
 from datetime import datetime
 from dotenv import load_dotenv
 from src.lead_scoring.exception import CustomException
 from src.lead_scoring.logger import logger
-from src.lead_scoring.constants import DATA_INGESTION_CONFIG_FILEPATH
-from src.lead_scoring.utils.commons import read_yaml, create_directories
 from src.lead_scoring.config_entity.config_params import DataIngestionConfig
-
 # Load environment variables
 load_dotenv()
 
 class MongoDBConnection:
-    """Handles MongoDB connections with retry logic."""
-    def __init__(self, uri, db_name, collection_name, retries=3):
+    """Handles MongoDB connections synchronously."""
+    def __init__(self, uri, db_name, collection_name):
         self.uri = uri
         self.db_name = db_name
         self.collection_name = collection_name
-        self.retries = retries
         self.client = None
         self.db = None
         self.collection = None
 
     def __enter__(self):
-        attempt = 0
-        while attempt < self.retries:
-            try:
-                logger.info(f"Connecting to MongoDB (Attempt {attempt+1}/{self.retries})")
-                self.client = pymongo.MongoClient(self.uri)
-                self.db = self.client[self.db_name]
-                self.collection = self.db[self.collection_name]
-                logger.info("Connected to MongoDB Database")
-                return self.collection
-            except Exception as e:
-                logger.error(f"Error connecting to MongoDB: {e}")
-                attempt += 1
-                time.sleep(2)
-        raise CustomException("Failed to connect to MongoDB after multiple attempts.", sys)
+        self.client = MongoClient(self.uri)
+        self.db = self.client[self.db_name]
+        self.collection = self.db[self.collection_name]
+        logger.info("Connected to MongoDB Database")
+        return self.collection
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.client:
@@ -52,13 +39,12 @@ class MongoDBConnection:
             logger.info("MongoDB connection closed.")
 
 class DataIngestion:
-    def __init__(self, config: DataIngestionConfig, user_name: str):
+    def __init__(self, config: DataIngestionConfig):
         self.config = config
-        self.user_name = user_name
         self.mongo_connection = MongoDBConnection(
-            config.config_data['mongo_uri'],
-            config.config_data['database_name'],
-            config.config_data['collection_name']
+            self.config.mongo_uri,
+            self.config.database_name,
+            self.config.collection_name
         )
 
     def import_data_from_mongodb(self):
@@ -79,33 +65,76 @@ class DataIngestion:
             logger.error(f"Error during data ingestion: {e}")
             raise CustomException(e)
 
-    def _fetch_all_data(self, collection, max_retries=3) -> pd.DataFrame:
-        for attempt in range(max_retries):
-            try:
-                logger.info("Fetching data from MongoDB...")
-                batch_size = self.config.config_data.get('batch_size', 1000)
+    def _fetch_all_data(self, collection) -> pd.DataFrame:
+        try:
+            logger.info("Fetching data from MongoDB...")
+            batch_size = self.config.batch_size
+            data_list = []
+            
+            # Use cursor with batch_size for efficient memory usage
+            cursor = collection.find({}, {'_id': 0}).batch_size(batch_size)
+            for document in cursor:
+                data_list.append(document)
                 
-                def data_generator():
-                    skip_count = 0
-                    while True:
-                        batch = list(collection.find({}, {'_id': 0}).skip(skip_count).limit(batch_size))
-                        if not batch:
-                            break
-                        yield pd.DataFrame(batch)
-                        skip_count += batch_size
-                
-                all_data = list(data_generator())
-                return pd.concat(all_data, ignore_index=True) if all_data else pd.DataFrame()
-            except Exception as e:
-                logger.warning(f"Retrying data fetch (Attempt {attempt + 1}/{max_retries})... Error: {e}")
-                time.sleep(2 ** attempt)  # Exponential backoff
-        logger.error("Max retries reached. Could not fetch data from MongoDB.")
-        raise CustomException("MongoDB data fetch failed.")
+                # Optional: Process in batches to avoid memory issues
+                if len(data_list) >= batch_size:
+                    df_batch = pd.DataFrame(data_list)
+                    if 'combined_df' not in locals():
+                        combined_df = df_batch
+                    else:
+                        combined_df = pd.concat([combined_df, df_batch], ignore_index=True)
+                    data_list = []
+            
+            # Process any remaining documents
+            if data_list:
+                df_batch = pd.DataFrame(data_list)
+                if 'combined_df' not in locals():
+                    combined_df = df_batch
+                else:
+                    combined_df = pd.concat([combined_df, df_batch], ignore_index=True)
+            
+            return combined_df if 'combined_df' in locals() else pd.DataFrame()
+            
+        except Exception as e:
+            logger.error(f"Error fetching data: {e}")
+            raise CustomException(e)
 
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         try:
+            # Identify categorical and numerical columns
+            categorical_cols = df.select_dtypes(include=['object']).columns
+            numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
+
+            # Remove columns with only one unique value
+            nunique = df.nunique()
+            unique_cols_to_drop = nunique[nunique == 1].index
+            df = df.drop(unique_cols_to_drop, axis=1)
+
+
+            # Remove zero variance columns
+            zero_variance_cols = [col for col in numerical_cols if df[col].var() == 0]
+            df = df.drop(columns=zero_variance_cols, axis=1)
+
+
+            # Replace inf values with NaN
             df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+
+            logger.info(f"Dropped columns with unique values: {list(unique_cols_to_drop)}")
+            logger.info(f"Dropped zero variance columns: {list(zero_variance_cols)}")
+
+            # Drop rows with NaN
             df.dropna(inplace=True)
+
+            # Ensure numeric conversion for numeric columns only
+            for col in numerical_cols:
+                try:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                except Exception as e:
+                    logger.warning(f"Skipping column {col} due to conversion error: {e}")
+
+            df.dropna(inplace=True)
+            
             logger.info("Data cleaning completed successfully.")
             return df
         except Exception as e:
@@ -114,30 +143,30 @@ class DataIngestion:
 
     def _save_data(self, df: pd.DataFrame) -> Path:
         try:
-            output_path = Path(self.config.config_data['root_dir']) / "website_visitors.parquet"
+            root_dir = self.config.root_dir
+            output_path = Path(root_dir) / "website_visitors.parquet"
             df.to_parquet(output_path, index=False)
             logger.info(f"Data saved to {output_path}")
             return output_path
         except Exception as e:
             logger.error(f"Error saving data: {e}")
             raise CustomException(e)
-
+    
     def _save_metadata(self, start_time: float, start_timestamp: datetime, total_records: int, output_path: Path):
         try:
+            root_dir = self.config.root_dir
             metadata = {
                 'start_time': start_timestamp.isoformat(),
                 'end_time': datetime.now().isoformat(),
                 'duration_seconds': time.time() - start_time,
                 "total_records": total_records,
-                "data_source": self.config.config_data['collection_name'],
-                "ingested_by": self.user_name,
+                "data_source": self.config.collection_name,
                 "output_path": str(output_path)
             }
-            metadata_path = Path(self.config.config_data['root_dir']) / "data-ingestion-metadata.json"
+            metadata_path = Path(root_dir) / "data-ingestion-metadata.json"
             with open(metadata_path, 'w') as f:
                 json.dump(metadata, f, indent=4)
             logger.info("Metadata saved successfully.")
         except Exception as e:
             logger.error(f"Error saving metadata: {e}")
             raise CustomException(e)
-

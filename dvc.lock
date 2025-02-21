@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/lead_scoring/pipelines/pip_01_data_ingestion.py
+    deps:
+    - path: config/data-ingestion.yaml
+      hash: md5
+      md5: d8cdaf6554294df0faad7d466cf75dc6
+      size: 214
+    - path: src/lead_scoring/pipelines/pip_01_data_ingestion.py
+      hash: md5
+      md5: 162d8087f814c473e9971a3c3916b44f
+      size: 4074
+    outs:
+    - path: artifacts/data_ingestion/data-ingestion-metadata.json
+      hash: md5
+      md5: 84f5ef223a3e2aff2f7d57656305b743
+      size: 270
+    - path: artifacts/data_ingestion/website_visitors.parquet
+      hash: md5
+      md5: d2c8be369168acf5305017dd8505e520
+      size: 85322

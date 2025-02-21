@@ -6,12 +6,13 @@ from typing import Dict, List, Any
 # Data ingestion 
 @dataclass
 class DataIngestionConfig:
-    """
-    Configuration for data ingestion process.
+    root_dir: str
+    database_name: str
+    collection_name: str
+    batch_size: int
+    mongo_uri: str
 
-    """
-    config_data: dict 
-
+# Data Validation
 @dataclass
 class DataValidationConfig:
     """

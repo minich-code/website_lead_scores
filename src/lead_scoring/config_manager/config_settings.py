@@ -34,13 +34,6 @@ class ConfigurationManager:
             model_validation_config: str = MODEL_VALIDATION_CONFIG_FILEPATH         
       
                  ) -> None:
-        """
-        Initializes the ConfigurationManager.
-
-        Args:
-            data_ingestion_config (str): Path to the data ingestion configuration file.
-               
-        """
         try:
             logger.info(f"Initializing ConfigurationManager with config files")
             
@@ -76,17 +69,16 @@ class ConfigurationManager:
             data_config = self.ingestion_config['data_ingestion']
             create_directories([data_config['root_dir']])
             logger.info(f"Data ingestion configuration loaded from: {DATA_INGESTION_CONFIG_FILEPATH}")
-            data_config['mongo_uri'] = os.environ.get('MONGO_URI')
-            return DataIngestionConfig(config_data=data_config)
+            mongo_uri = os.environ.get('MONGO_URI')
+            return DataIngestionConfig(
+                root_dir=data_config['root_dir'],
+                database_name=data_config['database_name'],
+                collection_name=data_config['collection_name'],
+                batch_size=data_config['batch_size'],
+                mongo_uri=mongo_uri
+            )
         except Exception as e:
             logger.error(f"Error loading data ingestion configuration: {e}")
-            raise CustomException(e, sys)
-    
-    def get_user_name(self):
-        try:
-            return self.ingestion_config['data_ingestion'].get('get_user_name', 'DefaultUser')
-        except Exception as e:
-            logger.error(f"Error getting user name from config: {e}")
             raise CustomException(e, sys)
 
 

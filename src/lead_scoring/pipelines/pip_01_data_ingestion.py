@@ -1,10 +1,10 @@
 import sys
 import time
-sys.path.append("/home/western/DS_Projects/website_lead_scores")
+sys.path.append('/home/western/ds_projects/website_lead_scores')
 
 from src.lead_scoring.logger import logger
 from src.lead_scoring.exception import CustomException
-from src.lead_scoring.config_manager.config_settings import ConfigurationManager # import config manager that has the get_user_name method
+from src.lead_scoring.config_manager.config_settings import ConfigurationManager # import config manager
 from src.lead_scoring.components.c_01_data_ingestion import DataIngestion
 from typing import Callable, List, Dict, Any
 from dataclasses import dataclass
@@ -15,23 +15,21 @@ PIPELINE_NAME = "DATA INGESTION PIPELINE"
 class PipelineData:
     """Represents the data passed between pipeline steps."""
     data_ingestion_config: Any
-    user_name: str
     ingested_data: Any = None
 
 
 class PipelineStep:
     """Represents a step in the data ingestion pipeline."""
     
-    def __init__(self, name: str, step_function: Callable, config: Dict = None):
-        self.name = name
+    def __init__(self, step_function: Callable, name: str, config: Dict = None):
         self.step_function = step_function
+        self.name = name  # Added name attribute
         self.config = config or {}
 
     def execute(self, pipeline_data: PipelineData) -> PipelineData:
         try:
             logger.info(f"Executing step: {self.name}")
             result = self.step_function(pipeline_data, **self.config)
-            logger.info(f"Step {self.name} completed successfully.")
             return result
         except Exception as e:
             logger.error(f"Error executing step {self.name}: {e}")
@@ -55,11 +53,9 @@ class DataIngestionPipeline:
             # Fetch configurations
             config_manager = ConfigurationManager()
             data_ingestion_config = config_manager.get_data_ingestion_config()
-            user_name = config_manager.get_user_name()  # Fetch from config instead of asking input
 
             pipeline_data = PipelineData(
                 data_ingestion_config=data_ingestion_config,
-                user_name=user_name
             )
 
             for step in self.steps:
@@ -76,11 +72,11 @@ def create_data_ingestion_step(name: str) -> PipelineStep:
     """Creates a pipeline step for data ingestion with a retry mechanism."""
 
     def step_function(pipeline_data: PipelineData, **config) -> PipelineData:
-        logger.info(f"Initializing data ingestion for user: {pipeline_data.user_name}")
+        # Removed user_name from here and DataIngestion initialization
+        logger.info("Initializing data ingestion")
 
         data_ingestion = DataIngestion(
-            config=pipeline_data.data_ingestion_config, 
-            user_name=pipeline_data.user_name
+            config=pipeline_data.data_ingestion_config,
         )
 
         max_retries = 3
@@ -116,4 +112,3 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Error in {PIPELINE_NAME}: {e}")
         sys.exit(1)
-
