@@ -23,6 +23,10 @@ stages:
   data_validation:
     cmd: python src/lead_scoring/pipelines/pip_02_data_validation.py
     deps:
+    - path: artifacts/data_ingestion/website_visitors.parquet
+      hash: md5
+      md5: d2c8be369168acf5305017dd8505e520
+      size: 85322
     - path: config/data-schema.yaml
       hash: md5
       md5: 8c9825110172cb8e8dd1f013c67a3b44
@@ -38,8 +42,8 @@ stages:
     outs:
     - path: artifacts/data_validation/validated_data_profile.html
       hash: md5
-      md5: 62eb30a29e3cf87dbad188c370a3282f
-      size: 1923987
+      md5: 54005e5503ed4cbbeb21289a353d0308
+      size: 1924069
     - path: artifacts/data_validation/validated_website_leads_data.parquet
       hash: md5
       md5: d2c8be369168acf5305017dd8505e520
@@ -48,3 +52,43 @@ stages:
       hash: md5
       md5: bd500a24f539935c778a68559c6d432e
       size: 546
+  data_transformation:
+    cmd: python src/lead_scoring/pipelines/pip_03_data_transformation.py
+    deps:
+    - path: config/data-transformation.yaml
+      hash: md5
+      md5: 4bdbedc788217f72500e05f54d4f148b
+      size: 645
+    - path: src/lead_scoring/pipelines/pip_03_data_transformation.py
+      hash: md5
+      md5: 351fde21eadeab6137c0268f5274de35
+      size: 4021
+    outs:
+    - path: artifacts/data_transformation/X_test_transformed.parquet
+      hash: md5
+      md5: 11cc88a0dab51aa45c3f10e21d029d99
+      size: 71781
+    - path: artifacts/data_transformation/X_train_transformed.parquet
+      hash: md5
+      md5: 09e2e15a6e305c23a71462e88cce3c48
+      size: 125951
+    - path: artifacts/data_transformation/X_val_transformed.parquet
+      hash: md5
+      md5: 862a059c7d01d0dc4edcf27ac934135d
+      size: 71797
+    - path: artifacts/data_transformation/preprocessor.joblib
+      hash: md5
+      md5: 033ff475475662c5b93e5ca105d14cb6
+      size: 9639
+    - path: artifacts/data_transformation/y_test.parquet
+      hash: md5
+      md5: 75060f748a717921db3a795983ed8c44
+      size: 1349
+    - path: artifacts/data_transformation/y_train.parquet
+      hash: md5
+      md5: b43811b5828d0451c68a584eab9c8bc7
+      size: 1914
+    - path: artifacts/data_transformation/y_val.parquet
+      hash: md5
+      md5: 6e62972c4b2b64488afc9162751ca3f0
+      size: 1348

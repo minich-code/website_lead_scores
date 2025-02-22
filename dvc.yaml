@@ -8,15 +8,31 @@ stages:
       - artifacts/data_ingestion/data-ingestion-metadata.json
       - artifacts/data_ingestion/website_visitors.parquet
 
-
   data_validation:
     cmd: python src/lead_scoring/pipelines/pip_02_data_validation.py
     deps:
       - src/lead_scoring/pipelines/pip_02_data_validation.py
+      - artifacts/data_ingestion/website_visitors.parquet  # <- This creates the connection
       - config/data-schema.yaml
       - config/data-validation.yaml
-
     outs:
       - artifacts/data_validation/validated_data_profile.html
       - artifacts/data_validation/validated_website_leads_data.parquet
       - artifacts/data_validation/validation_status.json
+
+
+  data_transformation:
+    cmd: python src/lead_scoring/pipelines/pip_03_data_transformation.py
+    deps:
+      - src/lead_scoring/pipelines/pip_03_data_transformation.py
+      - config/data-transformation.yaml
+
+    outs:
+      - artifacts/data_transformation/preprocessor.joblib
+      - artifacts/data_transformation/X_test_transformed.parquet
+      - artifacts/data_transformation/X_train_transformed.parquet
+      - artifacts/data_transformation/X_val_transformed.parquet
+      - artifacts/data_transformation/y_test.parquet
+      - artifacts/data_transformation/y_train.parquet
+      - artifacts/data_transformation/y_val.parquet
+

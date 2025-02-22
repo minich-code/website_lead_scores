@@ -50,7 +50,8 @@ class ConfigurationManager:
 
             create_directories([self.ingestion_config['artifacts_root']])
             create_directories([self.data_val_config['artifacts_root']])
-            create_directories([self.preprocessing_config.artifacts_root])
+            create_directories([self.preprocessing_config['artifacts_root']])
+            create_directories([self.preprocessing_config['artifacts_root']])
             create_directories([self.training_config.artifacts_root])
             create_directories([self.evaluation_config.artifacts_root])
             create_directories([self.validation_config.artifacts_root]) 
@@ -113,17 +114,18 @@ class ConfigurationManager:
     def get_data_transformation_config(self) -> DataTransformationConfig:
         logger.info("Getting data transformation configuration")
 
-        transformation_config = self.preprocessing_config.data_transformation
-        create_directories([transformation_config.root_dir])
+        transformation_config = self.preprocessing_config['data_transformation']
+        create_directories([transformation_config['root_dir']])
 
         return DataTransformationConfig(
-            root_dir = Path(transformation_config.root_dir),
-            data_path = Path(transformation_config.data_path),
-            numerical_cols = transformation_config.numerical_cols,
-            categorical_cols = transformation_config.categorical_cols,
-            target_col = transformation_config.target_col,
-            random_state = transformation_config.random_state
+            root_dir=Path(transformation_config['root_dir']),
+            data_path=Path(transformation_config['data_path']),
+            numerical_cols=list(transformation_config['numerical_cols']),
+            categorical_cols=list(transformation_config['categorical_cols']),
+            target_col=transformation_config['target_col'],
+            random_state=transformation_config['random_state']
         )
+
 
 
 

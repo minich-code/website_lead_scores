@@ -1,6 +1,8 @@
 from dataclasses import dataclass 
 from pathlib import Path
 from typing import Dict, List, Any
+import pandas as pd
+from sklearn.compose import ColumnTransformer
 
 
 # Data ingestion 
@@ -22,18 +24,26 @@ class DataValidationConfig:
     validated_data: Path
     profile_report_name: str
 
+# Data Transformation
+
 @dataclass
 class DataTransformationConfig:
-    """
-    Configuration for data transformation process.
-
-    """
     root_dir: Path
     data_path: Path
-    numerical_cols: frozenset
-    categorical_cols: frozenset
-    target_col : str
-    random_state: int  
+    numerical_cols: List[str]
+    categorical_cols: List[str]
+    target_col: str
+    random_state: int
+
+@dataclass
+class TransformedData:
+    preprocessor: ColumnTransformer
+    X_train: pd.DataFrame
+    X_val: pd.DataFrame
+    X_test: pd.DataFrame
+    y_train: pd.Series
+    y_val: pd.Series
+    y_test: pd.Series
 
 
 @dataclass
